@@ -108,7 +108,7 @@ func GetPowerRaw(ctx context.Context, sm *StateManager, st cid.Cid, maddr addres
 		mpow, found, err = pas.MinerPower(maddr)
 		if err != nil || !found {
 			// TODO: return an error when not found?
-			return power.Claim{}, power.Claim{}, false, err
+			return mpow, tpow, false, err
 		}
 
 		mact, err := sm.LoadActorRaw(ctx, maddr, st)
