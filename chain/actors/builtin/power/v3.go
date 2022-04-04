@@ -81,7 +81,7 @@ func (s *state3) MinerPower(addr address.Address) (Claim, bool, error) {
 	if err != nil {
 		return Claim{}, false, err
 	}
-	if claim.TotalMiningPledge.LessThan(power3.ConsensusMinerMinPledge) {
+	if claim.TotalMiningPledge.NilOrZero() || claim.TotalMiningPledge.LessThan(power3.ConsensusMinerMinPledge) {
 		return Claim{
 			RawBytePower:    big.Zero(),
 			QualityAdjPower: big.Zero(),
