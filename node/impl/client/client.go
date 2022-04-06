@@ -399,6 +399,23 @@ func (a *API) makeRetrievalQuery(ctx context.Context, rp rm.RetrievalPeer, paylo
 }
 
 func (a *API) ClientImport(ctx context.Context, ref api.FileRef) (*api.ImportRes, error) {
+	if strings.Index(ref.Path, "https://") == 0 || strings.Index(ref.Path, "http://") == 0 {
+		resp, err := http.Get(ref.Path)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		root, id, err := a.ClientImportLocal(ctx, resp.Body)
+		return &api.ImportRes{
+			Root:     root,
+			ImportID: id,
+		}, nil
+	} else {
+		return a.clientImportFile(ctx, ref)
+	}
+}
+
+func (a *API) clientImportFile(ctx context.Context, ref api.FileRef) (*api.ImportRes, error) {
 	id, st, err := a.imgr().NewStore()
 	if err != nil {
 		return nil, err
@@ -614,22 +631,22 @@ func (a *API) ClientRemoveImport(ctx context.Context, importID multistore.StoreI
 	return a.imgr().Remove(importID)
 }
 
-func (a *API) ClientImportLocal(ctx context.Context, f io.Reader) (cid.Cid, error) {
+func (a *API) ClientImportLocal(ctx context.Context, f io.Reader) (cid.Cid, multistore.StoreID, error) {
 	file := files.NewReaderFile(f)
 
 	id, st, err := a.imgr().NewStore()
 	if err != nil {
-		return cid.Undef, err
+		return cid.Undef, 0, err
 	}
 	if err := a.imgr().AddLabel(id, importmgr.LSource, "import-local"); err != nil {
-		return cid.Cid{}, err
+		return cid.Cid{}, 0, err
 	}
 
 	bufferedDS := ipld.NewBufferedDAG(ctx, st.DAG)
 
 	prefix, err := merkledag.PrefixForCidVersion(1)
 	if err != nil {
-		return cid.Undef, err
+		return cid.Undef, 0, err
 	}
 	prefix.MhType = DefaultHashFunction
 
@@ -645,17 +662,17 @@ func (a *API) ClientImportLocal(ctx context.Context, f io.Reader) (cid.Cid, erro
 
 	db, err := params.New(chunker.NewSizeSplitter(file, int64(build.UnixfsChunkSize)))
 	if err != nil {
-		return cid.Undef, err
+		return cid.Undef, 0, err
 	}
 	nd, err := balanced.Layout(db)
 	if err != nil {
-		return cid.Undef, err
+		return cid.Undef, 0, err
 	}
 	if err := a.imgr().AddLabel(id, "root", nd.Cid().String()); err != nil {
-		return cid.Cid{}, err
+		return cid.Cid{}, 0, err
 	}
 
-	return nd.Cid(), bufferedDS.Commit()
+	return nd.Cid(), id, bufferedDS.Commit()
 }
 
 func (a *API) ClientListImports(ctx context.Context) ([]api.Import, error) {

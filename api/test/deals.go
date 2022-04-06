@@ -190,7 +190,7 @@ func TestFastRetrievalDealFlow(t *testing.T, b APIBuilder, blocktime time.Durati
 	rand.New(rand.NewSource(int64(8))).Read(data)
 
 	r := bytes.NewReader(data)
-	fcid, err := s.client.ClientImportLocal(s.ctx, r)
+	fcid, _, err := s.client.ClientImportLocal(s.ctx, r)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -217,7 +217,7 @@ func TestSecondDealRetrieval(t *testing.T, b APIBuilder, blocktime time.Duration
 		rand.New(rand.NewSource(int64(3))).Read(data1)
 		r := bytes.NewReader(data1)
 
-		fcid1, err := s.client.ClientImportLocal(s.ctx, r)
+		fcid1, _, err := s.client.ClientImportLocal(s.ctx, r)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -226,7 +226,7 @@ func TestSecondDealRetrieval(t *testing.T, b APIBuilder, blocktime time.Duration
 		rand.New(rand.NewSource(int64(9))).Read(data2)
 		r2 := bytes.NewReader(data2)
 
-		fcid2, err := s.client.ClientImportLocal(s.ctx, r2)
+		fcid2, _, err := s.client.ClientImportLocal(s.ctx, r2)
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -114,7 +114,7 @@ func TestDealMining(t *testing.T, b APIBuilder, blocktime time.Duration, carExpo
 	rand.New(rand.NewSource(5)).Read(data)
 
 	r := bytes.NewReader(data)
-	fcid, err := client.ClientImportLocal(ctx, r)
+	fcid, _, err := client.ClientImportLocal(ctx, r)
 	if err != nil {
 		t.Fatal(err)
 	}

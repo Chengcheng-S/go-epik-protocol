@@ -135,7 +135,7 @@ func handleImport(a *impl.FullNodeAPI) func(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		c, err := a.ClientImportLocal(r.Context(), r.Body)
+		c, _, err := a.ClientImportLocal(r.Context(), r.Body)
 		if err != nil {
 			w.WriteHeader(500)
 			_ = json.NewEncoder(w).Encode(struct{ Error string }{err.Error()})
