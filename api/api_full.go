@@ -1239,11 +1239,11 @@ type MsigTransaction struct {
 
 type ExpertInfo struct {
 	expert.ExpertInfo
-	LockAmount   abi.TokenAmount
-	UnlockAmount abi.TokenAmount
-	TotalReward  abi.TokenAmount
-	VestingFunds map[abi.ChainEpoch]abi.TokenAmount
-	DataSize     abi.PaddedPieceSize
+	LockAmount     abi.TokenAmount
+	UnlockAmount   abi.TokenAmount
+	TotalReward    abi.TokenAmount
+	VestingFunds   map[abi.ChainEpoch]abi.TokenAmount
+	DataAdjustSize abi.PaddedPieceSize
 }
 
 type ExportRef struct {

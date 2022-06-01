@@ -6,6 +6,7 @@ import (
 
 	"github.com/EpiK-Protocol/go-epik/chain/actors/adt"
 
+	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/big"
 	"github.com/filecoin-project/specs-actors/v2/actors/builtin"
 	expert2 "github.com/filecoin-project/specs-actors/v2/actors/builtin/expert"
@@ -34,11 +35,22 @@ func (s *state2) Info() (*ExpertInfo, error) {
 		return nil, err
 	}
 
+	datas, err := s.Datas()
+	if err != nil {
+		return nil, err
+	}
+
+	dataSize := abi.PaddedPieceSize(0)
+	for _, data := range datas {
+		dataSize += data.PieceSize
+	}
+
 	ret := &ExpertInfo{
 		ExpertInfo:      *info,
 		Status:          s.ExpertState,
 		ImplicatedTimes: s.ImplicatedTimes,
 		DataCount:       s.DataCount,
+		DataSize:        dataSize,
 		CurrentVotes:    s.CurrentVotes,
 		RequiredVotes:   big.Add(expert2.ExpertVoteThreshold, big.Mul(big.NewIntUnsigned(s.ImplicatedTimes), expert2.ExpertVoteThresholdAddition)),
 	}
