@@ -12,6 +12,7 @@ import (
 	proof2 "github.com/filecoin-project/specs-actors/v2/actors/runtime/proof"
 
 	"github.com/EpiK-Protocol/go-epik/chain/gen/slashfilter"
+	"github.com/EpiK-Protocol/go-epik/node/config"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -48,7 +49,7 @@ func randTimeOffset(width time.Duration) time.Duration {
 	return val - (width / 2)
 }
 
-func NewMiner(api api.FullNode, epp gen.WinningPoStProver, addr address.Address, sf *slashfilter.SlashFilter, j journal.Journal) *Miner {
+func NewMiner(api api.FullNode, epp gen.WinningPoStProver, addr address.Address, sf *slashfilter.SlashFilter, j journal.Journal, cfg *config.StorageMiner) *Miner {
 	arc, err := lru.NewARC(10000)
 	if err != nil {
 		panic(err)
@@ -76,7 +77,7 @@ func NewMiner(api api.FullNode, epp gen.WinningPoStProver, addr address.Address,
 			evtTypeBlockMined: j.RegisterEventType("miner", "block_mined"),
 		},
 		journal:          j,
-		minerData:        newMinerData(api, addr),
+		minerData:        newMinerData(api, addr, cfg),
 		isMineOneRunning: false,
 	}
 }

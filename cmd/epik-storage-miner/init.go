@@ -49,6 +49,7 @@ import (
 	"github.com/EpiK-Protocol/go-epik/genesis"
 	"github.com/EpiK-Protocol/go-epik/journal"
 	storageminer "github.com/EpiK-Protocol/go-epik/miner"
+	"github.com/EpiK-Protocol/go-epik/node/config"
 	"github.com/EpiK-Protocol/go-epik/node/modules"
 	"github.com/EpiK-Protocol/go-epik/node/modules/dtypes"
 	"github.com/EpiK-Protocol/go-epik/node/repo"
@@ -473,7 +474,16 @@ func storageMinerInit(ctx context.Context, cctx *cli.Context, api lapi.FullNode,
 				return fmt.Errorf("failed to open filesystem journal: %w", err)
 			}
 
-			m := storageminer.NewMiner(api, epp, a, slashfilter.New(mds), j)
+			lrcfg, err := lr.Config()
+			if err != nil {
+				return err
+			}
+
+			cfg, ok := lrcfg.(*config.StorageMiner)
+			if !ok {
+				return xerrors.New("expected address of config.StorageMiner")
+			}
+			m := storageminer.NewMiner(api, epp, a, slashfilter.New(mds), j, cfg)
 			{
 				if err := m.Start(ctx); err != nil {
 					return xerrors.Errorf("failed to start up genesis miner: %w", err)

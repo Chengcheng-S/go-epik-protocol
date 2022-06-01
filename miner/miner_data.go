@@ -10,6 +10,7 @@ import (
 	"github.com/EpiK-Protocol/go-epik/api"
 	mineractor "github.com/EpiK-Protocol/go-epik/chain/actors/builtin/miner"
 	"github.com/EpiK-Protocol/go-epik/chain/types"
+	"github.com/EpiK-Protocol/go-epik/node/config"
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-fil-markets/retrievalmarket"
@@ -62,6 +63,8 @@ type MinerData struct {
 
 	checkHeight abi.ChainEpoch
 
+	experts []string
+
 	dataRefs   *lru.ARCCache
 	retrievals *lru.ARCCache
 	deals      *lru.ARCCache
@@ -71,7 +74,7 @@ type MinerData struct {
 	totalDealCount     uint64
 }
 
-func newMinerData(api api.FullNode, addr address.Address) *MinerData {
+func newMinerData(api api.FullNode, addr address.Address, cfg *config.StorageMiner) *MinerData {
 	data, err := lru.NewARC(1000000)
 	if err != nil {
 		panic(err)
@@ -79,6 +82,7 @@ func newMinerData(api api.FullNode, addr address.Address) *MinerData {
 	return &MinerData{
 		api:                api,
 		miner:              addr,
+		experts:            cfg.Dealmaking.AutoDealExperts,
 		dataRefs:           data,
 		retrievals:         nil,
 		deals:              nil,
@@ -200,7 +204,20 @@ func (m *MinerData) checkChainData(ctx context.Context) error {
 				dataRef = ref.(*DataRef)
 			}
 			dataRef.miners[data.Miner] = MinerDefaultScore
-			m.dataRefs.Add(data.PieceCID.String(), dataRef)
+			if len(m.experts) > 0 {
+				info, err := m.api.StateExpertFileInfo(ctx, dataRef.pieceID, types.EmptyTSK)
+				if err != nil {
+					return err
+				}
+				for _, expert := range m.experts {
+					if expert == info.Expert.String() {
+						m.dataRefs.Add(data.PieceCID.String(), dataRef)
+						break
+					}
+				}
+			} else {
+				m.dataRefs.Add(data.PieceCID.String(), dataRef)
+			}
 		}
 
 		m.checkHeight++

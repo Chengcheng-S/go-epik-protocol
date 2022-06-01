@@ -65,6 +65,8 @@ type DealmakingConfig struct {
 	RetrievalFilter string
 
 	MaxOngoingServedRetrievals int
+
+	AutoDealExperts []string
 }
 
 type SealingConfig struct {
@@ -278,6 +280,7 @@ func DefaultStorageMiner() *StorageMiner {
 			MaxDealsPerPublishMsg: 8,
 
 			MaxOngoingServedRetrievals: 12,
+			AutoDealExperts:            []string{},
 		},
 
 		Fees: MinerFeeConfig{
