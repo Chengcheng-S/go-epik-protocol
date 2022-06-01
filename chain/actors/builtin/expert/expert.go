@@ -53,6 +53,7 @@ type ExpertInfo struct {
 	ImplicatedTimes uint64
 	DataCount       uint64
 	DataSize        abi.PaddedPieceSize
+	StoreSize       abi.PaddedPieceSize
 	CurrentVotes    abi.TokenAmount // fill in state.go
 	RequiredVotes   abi.TokenAmount
 }

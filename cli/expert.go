@@ -199,6 +199,7 @@ var expertInfoCmd = &cli.Command{
 		fmt.Printf("\tImplicated: %d times\n", info.ImplicatedTimes)
 		fmt.Printf("\tData Count: %d\n", info.DataCount)
 		fmt.Printf("\tData Size: %s\n", types.SizeStr(types.NewInt(uint64(info.DataSize))))
+		fmt.Printf("\tStore Size: %s\n", types.SizeStr(types.NewInt(uint64(info.StoreSize))))
 		fmt.Printf("\tData Fund Share: %d\n", info.DataAdjustSize)
 		fmt.Printf("\tStatus: %d (%s)\n", info.Status, info.StatusDesc)
 		head, err := api.ChainHead(ctx)

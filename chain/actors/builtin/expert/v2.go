@@ -41,8 +41,12 @@ func (s *state2) Info() (*ExpertInfo, error) {
 	}
 
 	dataSize := abi.PaddedPieceSize(0)
+	storeSize := abi.PaddedPieceSize(0)
 	for _, data := range datas {
 		dataSize += data.PieceSize
+		if data.Redundancy > 0 {
+			storeSize += data.PieceSize
+		}
 	}
 
 	ret := &ExpertInfo{
@@ -51,6 +55,7 @@ func (s *state2) Info() (*ExpertInfo, error) {
 		ImplicatedTimes: s.ImplicatedTimes,
 		DataCount:       s.DataCount,
 		DataSize:        dataSize,
+		StoreSize:       storeSize,
 		CurrentVotes:    s.CurrentVotes,
 		RequiredVotes:   big.Add(expert2.ExpertVoteThreshold, big.Mul(big.NewIntUnsigned(s.ImplicatedTimes), expert2.ExpertVoteThresholdAddition)),
 	}
